@@ -229,12 +229,15 @@ flowchart TB
     Cache -->|"hit"| CacheHit --> Format
     Cache -->|"miss"| Think
 
-    Think --> Dedup --> Router --> Breaker --> Client
+    Think --> Dedup
+    Dedup --> Router
+    Router --> Breaker
+    Breaker --> Client
     Client -->|"HTTPS/SSE"| LLM_API
     LLM_API --> Client
-    Client --> SemCache --> Think
+    Client --> SemCache
 
-    Think --> L4Check
+    SemCache -.->|"response"| L4Check
     L4Check --> ToolCall
     ToolCall -->|"no"| Done
     ToolCall -->|"yes"| PolicyCheck
@@ -335,7 +338,8 @@ sequenceDiagram
 
     Pipeline->>Agent: Run(ctx, session)
 
-    loop ReAct Cycle (until Done)
+    rect rgb(245, 245, 255)
+    Note over Agent,DB: ReAct Cycle (repeats until done)
         Agent->>Context: BuildRequest(session)
         Context->>Memory: Retrieve(query, budget)
         Memory->>DB: SELECT + FTS5 query
@@ -454,37 +458,47 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant Loop as ReAct Loop
+    participant Agent as ReAct Agent
     participant Policy as Policy Engine
     participant Auth as Authority Rule
     participant Path as Path Protection
-    participant Rate as Rate Limiter
-    participant Valid as Validation Rule
-    participant Tool as Tool (bash)
+    participant Tool as Tool Registry
     participant Session as Session
 
-    Loop->>Policy: Evaluate(tool="bash", args, authority=External)
+    rect rgb(255, 240, 240)
+    Note over Agent,Session: Scenario 1: Insufficient authority
+    Agent->>Policy: EvaluateWithTools(tool="bash", authority=External)
+    Policy->>Auth: Check authority vs tool risk
+    Note over Auth: bash = RiskDangerous<br/>External < SelfGenerated
+    Auth-->>Policy: DENY
+    Policy-->>Agent: Denied: "insufficient authority"
+    Agent->>Session: AddToolResult("Policy denied")
+    end
 
-    Policy->>Auth: Evaluate
-    Note over Auth: bash is RiskDangerous<br/>External < SelfGenerated
-    Auth-->>Policy: DENY (authority)
-
-    Policy-->>Loop: Denied: "dangerous tools require self-generated or higher authority"
-    Loop->>Session: AddToolResult("Policy denied: ...")
-
-    Note over Loop: Different scenario: authority=Creator
-
-    Loop->>Policy: Evaluate(tool="read_file", args='{"path":"../../etc/passwd"}', authority=Creator)
-
-    Policy->>Auth: Evaluate
+    rect rgb(240, 255, 240)
+    Note over Agent,Session: Scenario 2: Path traversal blocked
+    Agent->>Policy: EvaluateWithTools(tool="read_file", authority=Creator)
+    Policy->>Auth: Check authority
     Auth-->>Policy: Allow (Creator >= Caution)
+    Policy->>Path: Check path patterns
+    Note over Path: Detects "../" traversal
+    Path-->>Policy: DENY
+    Policy-->>Agent: Denied: "path traversal"
+    Agent->>Session: AddToolResult("Policy denied")
+    end
 
-    Policy->>Path: Evaluate
-    Note over Path: Detects ".." traversal<br/>in arguments
-    Path-->>Policy: DENY (path_protection)
-
-    Policy-->>Loop: Denied: "path traversal detected"
-    Loop->>Session: AddToolResult("Policy denied: ...")
+    rect rgb(240, 240, 255)
+    Note over Agent,Session: Scenario 3: Allowed execution
+    Agent->>Policy: EvaluateWithTools(tool="read_file", authority=Creator)
+    Policy->>Auth: Check authority
+    Auth-->>Policy: Allow
+    Policy->>Path: Check path
+    Path-->>Policy: Allow
+    Policy-->>Agent: Allowed
+    Agent->>Tool: Execute("read_file", args)
+    Tool-->>Agent: File contents
+    Agent->>Session: AddToolResult(contents)
+    end
 ```
 
 ---
