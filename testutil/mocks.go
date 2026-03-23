@@ -11,7 +11,6 @@ import (
 
 	"goboticus/internal/db"
 	"goboticus/internal/llm"
-	"goboticus/internal/pipeline"
 )
 
 // --- MockCompleter ---
@@ -114,37 +113,6 @@ func (m *MockCompleter) CallCount() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	return len(m.calls)
-}
-
-// --- MockPipeline ---
-
-// MockPipeline implements pipeline.Runner for route handler tests.
-type MockPipeline struct {
-	mu       sync.Mutex
-	response *pipeline.Outcome
-	err      error
-	calls    []pipeline.Input
-}
-
-// NewMockPipeline creates a mock pipeline that returns the given outcome.
-func NewMockPipeline(outcome *pipeline.Outcome, err error) *MockPipeline {
-	return &MockPipeline{response: outcome, err: err}
-}
-
-func (m *MockPipeline) Run(ctx context.Context, cfg pipeline.Config, input pipeline.Input) (*pipeline.Outcome, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.calls = append(m.calls, input)
-	return m.response, m.err
-}
-
-// Calls returns recorded inputs.
-func (m *MockPipeline) Calls() []pipeline.Input {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	result := make([]pipeline.Input, len(m.calls))
-	copy(result, m.calls)
-	return result
 }
 
 // --- MockHTTPServer ---
