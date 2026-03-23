@@ -35,15 +35,15 @@ goboticus serve --port 18789
 │  Validate → Injection Defense → Session → Decomposition →      │
 │  Skill Match → Shortcut → ReAct Loop → Guards → Memory         │
 ├────────────────────────────────────────────────────────────────┤
-│  Agent Loop     │  Memory (5-tier)  │  Tool Execution          │
-│  ┌────────────┐ │  Working          │  read_file, write_file   │
-│  │ LLM Call   │ │  Episodic         │  bash, search_files      │
-│  │ Tool Use   │ │  Semantic         │  web_search, http_fetch  │
-│  │ Policy     │ │  Procedural       │  introspect, echo        │
-│  │ Guardrails │ │  Relationship     │  glob_files, edit_file   │
-│  └────────────┘ │                   │  list_directory          │
+│  Agent Loop      │  Memory (5-tier)   │  Tool Execution        │
+│  ┌────────────┐  │  Working           │  read_file, write_file │
+│  │ LLM Call   │  │  Episodic          │  bash, search_files    │
+│  │ Tool Use   │  │  Semantic          │  web_search, http_fetch│
+│  │ Policy     │  │  Procedural        │  introspect, echo      │
+│  │ Guardrails │  │  Relationship      │  glob_files, edit_file │
+│  └────────────┘  │                    │  list_directory        │
 ├────────────────────────────────────────────────────────────────┤
-│  Channels        │  LLM Service      │  Scheduler              │
+│  Channels        │  LLM Service       │  Scheduler             │
 │  Telegram        │  Router + Cascade  │  Cron (durable)        │
 │  Discord         │  Circuit Breaker   │  Lease-based locking   │
 │  Signal          │  Semantic Cache    │  Interval + One-shot   │
