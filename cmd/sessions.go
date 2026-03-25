@@ -1,0 +1,84 @@
+package cmd
+
+import (
+	"fmt"
+
+	"github.com/spf13/cobra"
+)
+
+var sessionsCmd = &cobra.Command{
+	Use:   "sessions",
+	Short: "Manage agent sessions",
+}
+
+var sessionsListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List all sessions",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		data, err := apiGet("/api/sessions")
+		if err != nil {
+			return err
+		}
+		sessions, _ := data["sessions"].([]any)
+		if len(sessions) == 0 {
+			fmt.Println("No sessions.")
+			return nil
+		}
+		for _, s := range sessions {
+			sm, _ := s.(map[string]any)
+			fmt.Printf("  %v  agent=%v  scope=%v  nickname=%v\n",
+				sm["id"], sm["agent_id"], sm["scope_key"], sm["nickname"])
+		}
+		return nil
+	},
+}
+
+var sessionsShowCmd = &cobra.Command{
+	Use:   "show [id]",
+	Short: "Show session details and messages",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		data, err := apiGet("/api/sessions/" + args[0])
+		if err != nil {
+			return err
+		}
+		printJSON(data)
+
+		msgs, err := apiGet("/api/sessions/" + args[0] + "/messages")
+		if err == nil {
+			if messages, ok := msgs["messages"].([]any); ok {
+				fmt.Printf("\n--- %d messages ---\n", len(messages))
+				for _, m := range messages {
+					mm, _ := m.(map[string]any)
+					fmt.Printf("[%v] %v\n", mm["role"], truncateStr(fmt.Sprintf("%v", mm["content"]), 120))
+				}
+			}
+		}
+		return nil
+	},
+}
+
+var sessionsDeleteCmd = &cobra.Command{
+	Use:   "delete [id]",
+	Short: "Delete a session",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if err := apiDelete("/api/sessions/" + args[0]); err != nil {
+			return err
+		}
+		fmt.Println("Session deleted.")
+		return nil
+	},
+}
+
+func truncateStr(s string, n int) string {
+	if len(s) > n {
+		return s[:n] + "..."
+	}
+	return s
+}
+
+func init() {
+	sessionsCmd.AddCommand(sessionsListCmd, sessionsShowCmd, sessionsDeleteCmd)
+	rootCmd.AddCommand(sessionsCmd)
+}
