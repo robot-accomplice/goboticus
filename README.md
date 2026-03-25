@@ -1,6 +1,7 @@
 # Goboticus
 
 ![Go 1.26](https://img.shields.io/badge/Go-1.26-00ADD8?style=flat-square&logo=go&logoColor=white)
+![CI](https://img.shields.io/github/actions/workflow/status/robot-accomplice/goboticus/ci.yml?style=flat-square&label=CI)
 ![Parity Audit](https://img.shields.io/github/actions/workflow/status/robot-accomplice/goboticus/parity-audit.yml?style=flat-square&label=parity%20audit)
 ![License](https://img.shields.io/github/license/robot-accomplice/goboticus?style=flat-square)
 ![Go Version](https://img.shields.io/github/go-mod/go-version/robot-accomplice/goboticus?style=flat-square)
