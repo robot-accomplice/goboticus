@@ -9,7 +9,7 @@ import (
 func TestSecp256k1_GeneratorOnCurve(t *testing.T) {
 	curve := secp256k1Curve()
 	params := curve.Params() //nolint:staticcheck // TODO: migrate to modern crypto API
-	if !curve.IsOnCurve(params.Gx, params.Gy) {
+	if !curve.IsOnCurve(params.Gx, params.Gy) { //nolint:staticcheck // TODO: migrate to modern crypto API
 		t.Fatal("generator point is not on curve")
 	}
 }
@@ -65,7 +65,7 @@ func TestSecp256k1_AddCommutativity(t *testing.T) {
 
 func TestPubKeyToAddress_Length(t *testing.T) {
 	curve := secp256k1Curve()
-	x, y := curve.ScalarBaseMult(big.NewInt(42).Bytes())
+	x, y := curve.ScalarBaseMult(big.NewInt(42).Bytes()) //nolint:staticcheck // TODO: migrate to modern crypto API
 	pub := &ecdsa.PublicKey{Curve: curve, X: x, Y: y}
 	addr := pubKeyToAddress(pub)
 	if len(addr) != 42 {
@@ -78,7 +78,7 @@ func TestPubKeyToAddress_Length(t *testing.T) {
 
 func TestPubKeyToAddress_Deterministic(t *testing.T) {
 	curve := secp256k1Curve()
-	x, y := curve.ScalarBaseMult(big.NewInt(99).Bytes())
+	x, y := curve.ScalarBaseMult(big.NewInt(99).Bytes()) //nolint:staticcheck // TODO: migrate to modern crypto API
 	pub := &ecdsa.PublicKey{Curve: curve, X: x, Y: y}
 	addr1 := pubKeyToAddress(pub)
 	addr2 := pubKeyToAddress(pub)
@@ -99,7 +99,7 @@ func TestWallet_Generate_ValidAddress(t *testing.T) {
 
 	// Key should be on the curve.
 	curve := secp256k1Curve()
-	if !curve.IsOnCurve(w.PrivateKey().PublicKey.X, w.PrivateKey().PublicKey.Y) {
+	if !curve.IsOnCurve(w.PrivateKey().PublicKey.X, w.PrivateKey().PublicKey.Y) { //nolint:staticcheck // TODO: migrate to modern crypto API
 		t.Fatal("generated key is not on secp256k1 curve")
 	}
 }

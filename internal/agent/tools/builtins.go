@@ -115,7 +115,7 @@ func (t *WriteFileTool) Execute(_ context.Context, params string, tctx *Context)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	if _, err := f.WriteString(args.Content); err != nil {
 		return nil, fmt.Errorf("failed to write file: %w", err)

@@ -233,7 +233,7 @@ func (dq *DeliveryQueue) persistItem(item *DeliveryItem) {
 	if dq.store == nil {
 		return
 	}
-	dq.store.ExecContext(context.Background(),
+	_, _ = dq.store.ExecContext(context.Background(),
 		`INSERT OR REPLACE INTO delivery_queue (id, channel, recipient_id, content, status, attempts, max_attempts, next_retry_at, created_at, last_error)
 		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		item.ID, item.Channel, item.RecipientID, item.Content,
@@ -249,7 +249,7 @@ func (dq *DeliveryQueue) updateItemStatus(item *DeliveryItem) {
 	if dq.store == nil {
 		return
 	}
-	dq.store.ExecContext(context.Background(),
+	_, _ = dq.store.ExecContext(context.Background(),
 		`UPDATE delivery_queue SET status = ?, attempts = ?, next_retry_at = ?, last_error = ? WHERE id = ?`,
 		item.Status, item.Attempts,
 		item.NextRetryAt.UTC().Format(time.RFC3339),
@@ -268,7 +268,7 @@ func (dq *DeliveryQueue) recoverFromStore() {
 		log.Warn().Err(err).Msg("delivery queue recovery failed")
 		return
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	count := 0
 	for rows.Next() {

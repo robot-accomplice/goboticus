@@ -24,7 +24,7 @@ type CdpTarget struct {
 
 // CdpSession wraps a WebSocket connection to a CDP target.
 type CdpSession struct {
-	conn      *websocket.Conn
+	conn      *websocket.Conn //nolint:staticcheck // TODO: migrate to modern API
 	commandID atomic.Int64
 	mu        sync.Mutex
 	pending   map[int64]chan json.RawMessage
@@ -149,7 +149,7 @@ func FindPageTarget(baseURL string) (*CdpTarget, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

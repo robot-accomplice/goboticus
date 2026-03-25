@@ -164,14 +164,14 @@ func (mm *MemoryManager) storeSemanticMemory(ctx context.Context, category, key,
 // recordToolStat tracks tool success/failure in the procedural_memory table.
 func (mm *MemoryManager) recordToolStat(ctx context.Context, toolName string, success bool) {
 	if success {
-		mm.store.ExecContext(ctx,
+		_, _ = mm.store.ExecContext(ctx,
 			`INSERT INTO procedural_memory (id, name, steps, success_count)
 			 VALUES (?, ?, '', 1)
 			 ON CONFLICT(name) DO UPDATE SET success_count = success_count + 1, updated_at = datetime('now')`,
 			db.NewID(), toolName,
 		)
 	} else {
-		mm.store.ExecContext(ctx,
+		_, _ = mm.store.ExecContext(ctx,
 			`INSERT INTO procedural_memory (id, name, steps, failure_count)
 			 VALUES (?, ?, '', 1)
 			 ON CONFLICT(name) DO UPDATE SET failure_count = failure_count + 1, updated_at = datetime('now')`,
@@ -190,7 +190,7 @@ func (mm *MemoryManager) ingestRelationships(ctx context.Context, messages []llm
 		// Extract @mentions or explicit entity references.
 		entities := extractEntities(m.Content)
 		for _, entity := range entities {
-			mm.store.ExecContext(ctx,
+			_, _ = mm.store.ExecContext(ctx,
 				`INSERT INTO relationship_memory (id, entity_id, entity_name, interaction_count, last_interaction)
 				 VALUES (?, ?, ?, 1, datetime('now'))
 				 ON CONFLICT(entity_id) DO UPDATE SET

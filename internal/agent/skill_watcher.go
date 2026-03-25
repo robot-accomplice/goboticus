@@ -99,7 +99,7 @@ func (sw *SkillWatcher) hasChanges() bool {
 	sw.mu.RUnlock()
 
 	currentHashes := make(map[string]string)
-	filepath.WalkDir(sw.dir, func(path string, d os.DirEntry, err error) error {
+	_ = filepath.WalkDir(sw.dir, func(path string, d os.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return nil
 		}

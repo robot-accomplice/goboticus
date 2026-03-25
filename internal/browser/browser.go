@@ -326,7 +326,7 @@ func (b *Browser) ListTargets() ([]PageInfo, error) {
 	if err != nil {
 		return nil, fmt.Errorf("browser: list targets: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var targets []struct {
 		ID    string `json:"id"`
@@ -352,7 +352,7 @@ func (b *Browser) waitForCDP(timeout time.Duration) error {
 	for time.Now().Before(deadline) {
 		resp, err := b.client.Get(b.cdpURL("/json/version"))
 		if err == nil {
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			return nil
 		}
 		time.Sleep(200 * time.Millisecond)

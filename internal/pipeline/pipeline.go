@@ -507,7 +507,7 @@ func (p *Pipeline) refineNickname(ctx context.Context, session *agent.Session) {
 
 	// Update session nickname in DB.
 	if p.store != nil {
-		p.store.ExecContext(ctx,
+		_, _ = p.store.ExecContext(ctx,
 			`UPDATE sessions SET nickname = ? WHERE id = ?`,
 			nickname, session.ID,
 		)

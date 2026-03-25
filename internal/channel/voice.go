@@ -91,9 +91,9 @@ func (v *VoiceAdapter) Transcribe(ctx context.Context, audio []byte, format Audi
 	if _, err := part.Write(audio); err != nil {
 		return nil, err
 	}
-	writer.WriteField("model", v.cfg.STTModel)
-	writer.WriteField("response_format", "verbose_json")
-	writer.Close()
+	_ = writer.WriteField("model", v.cfg.STTModel)
+	_ = writer.WriteField("response_format", "verbose_json")
+	_ = writer.Close()
 
 	req, err := http.NewRequestWithContext(ctx, "POST", v.cfg.APIBaseURL+"/audio/transcriptions", &body)
 	if err != nil {

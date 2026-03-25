@@ -264,7 +264,7 @@ func (s *Service) recordCost(ctx context.Context, providerName string, resp *Res
 	}
 
 	cost := resp.Usage.Cost(client.provider)
-	s.store.ExecContext(ctx,
+	_, _ = s.store.ExecContext(ctx,
 		`INSERT INTO inference_costs (id, model, provider, tokens_in, tokens_out, cost, created_at)
 		 VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
 		fmt.Sprintf("%s-%d", resp.ID, resp.Usage.OutputTokens),

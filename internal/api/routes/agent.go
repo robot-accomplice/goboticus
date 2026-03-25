@@ -124,7 +124,7 @@ func AgentMessageStream(p *pipeline.Pipeline, llmSvc *llm.Service) http.HandlerF
 
 		for chunk := range chunks {
 			data, _ := json.Marshal(map[string]string{"delta": chunk.Delta})
-			fmt.Fprintf(w, "data: %s\n\n", data)
+			_, _ = fmt.Fprintf(w, "data: %s\n\n", data)
 			flusher.Flush()
 		}
 
@@ -133,13 +133,13 @@ func AgentMessageStream(p *pipeline.Pipeline, llmSvc *llm.Service) http.HandlerF
 		case err := <-errs:
 			if err != nil {
 				data, _ := json.Marshal(map[string]string{"error": err.Error()})
-				fmt.Fprintf(w, "data: %s\n\n", data)
+				_, _ = fmt.Fprintf(w, "data: %s\n\n", data)
 				flusher.Flush()
 			}
 		default:
 		}
 
-		fmt.Fprintf(w, "data: [DONE]\n\n")
+		_, _ = fmt.Fprintf(w, "data: [DONE]\n\n")
 		flusher.Flush()
 	}
 }

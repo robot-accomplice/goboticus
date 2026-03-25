@@ -106,7 +106,7 @@ func TestA2A_MaxMessageSize(t *testing.T) {
 	alice, _ := NewA2AAdapter(A2AConfig{MaxMessageSize: 10})
 	bob, _ := NewA2AAdapter(A2AConfig{})
 
-	alice.EstablishSession("bob", bob.PublicKeyHex(), "nonce-1")
+	_ = alice.EstablishSession("bob", bob.PublicKeyHex(), "nonce-1")
 
 	err := alice.Send(context.Background(), OutboundMessage{
 		RecipientID: "bob",

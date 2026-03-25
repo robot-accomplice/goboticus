@@ -59,8 +59,8 @@ func TestDedup_DifferentKeysRunSeparately(t *testing.T) {
 		return &Response{Content: "ok"}, nil
 	}
 
-	d.Do(context.Background(), "key-1", fn)
-	d.Do(context.Background(), "key-2", fn)
+	_, _ = d.Do(context.Background(), "key-1", fn)
+	_, _ = d.Do(context.Background(), "key-2", fn)
 
 	if callCount.Load() != 2 {
 		t.Errorf("different keys should run separately, got %d calls", callCount.Load())

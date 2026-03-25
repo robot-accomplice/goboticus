@@ -137,7 +137,7 @@ func (s *Store) ListSessions(ctx context.Context, agentID string, limit int) ([]
 	if err != nil {
 		return nil, core.WrapError(core.ErrDatabase, "failed to list sessions", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var sessions []Session
 	for rows.Next() {

@@ -115,7 +115,7 @@ func runParityAudit(cmd *cobra.Command, args []string) error {
 
 	var report strings.Builder
 	report.WriteString("# Feature Parity Audit Report\n\n")
-	report.WriteString(fmt.Sprintf("Generated: %s\n\n", time.Now().Format(time.RFC3339)))
+	fmt.Fprintf(&report, "Generated: %s\n\n", time.Now().Format(time.RFC3339))
 	report.WriteString("| Subsystem | Rust Files | Go Files | Coverage | Status |\n")
 	report.WriteString("|-----------|-----------|---------|----------|--------|\n")
 
@@ -146,11 +146,11 @@ func runParityAudit(cmd *cobra.Command, args []string) error {
 			status = "MISSING"
 		}
 
-		report.WriteString(fmt.Sprintf("| %s | %d | %d | %s | %s |\n",
-			sub.Name, rustFiles, goFiles, coverage, status))
+		fmt.Fprintf(&report, "| %s | %d | %d | %s | %s |\n",
+			sub.Name, rustFiles, goFiles, coverage, status)
 	}
 
-	report.WriteString(fmt.Sprintf("\n**Totals:** %d Rust files, %d Go files\n\n", totalRust, totalGo))
+	fmt.Fprintf(&report, "\n**Totals:** %d Rust files, %d Go files\n\n", totalRust, totalGo)
 
 	if len(gaps) > 0 {
 		report.WriteString("## Gaps Found\n\n")

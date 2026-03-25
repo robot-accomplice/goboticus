@@ -68,7 +68,7 @@ func PostTurnFeedback(store *db.Store) http.HandlerFunc {
 		if req.SessionID == "" {
 			// Try to look up the session from the turn.
 			row := store.QueryRowContext(r.Context(), `SELECT session_id FROM turns WHERE id = ?`, id)
-			row.Scan(&req.SessionID)
+			_ = row.Scan(&req.SessionID)
 		}
 		feedbackID := db.NewID()
 		_, err := store.ExecContext(r.Context(),
@@ -130,7 +130,7 @@ func GetCacheStats(store *db.Store) http.HandlerFunc {
 		row := store.QueryRowContext(r.Context(),
 			`SELECT COUNT(*) FROM semantic_cache`)
 		var count int64
-		row.Scan(&count)
+		_ = row.Scan(&count)
 		writeJSON(w, http.StatusOK, map[string]any{"cached_entries": count})
 	}
 }
@@ -285,7 +285,7 @@ func CreateSubagent(store *db.Store) http.HandlerFunc {
 		}
 		skillsJSON, _ := json.Marshal(req.Capabilities)
 		id := db.NewID()
-		store.ExecContext(r.Context(),
+		_, _ = store.ExecContext(r.Context(),
 			`INSERT INTO sub_agents (id, name, model, skills_json, enabled)
 			 VALUES (?, ?, ?, ?, 1)`,
 			id, req.Name, req.Model, string(skillsJSON),
@@ -334,7 +334,7 @@ func WebhookWhatsAppVerify(verifyToken string) http.HandlerFunc {
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(challenge))
+		_, _ = w.Write([]byte(challenge))
 	}
 }
 

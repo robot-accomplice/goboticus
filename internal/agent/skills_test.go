@@ -40,7 +40,7 @@ This is the instruction body for the test skill.
 It can contain multiple paragraphs and **markdown**.
 `
 	path := filepath.Join(dir, "test.md")
-	os.WriteFile(path, []byte(content), 0644)
+	_ = os.WriteFile(path, []byte(content), 0644)
 
 	sl := NewSkillLoader()
 	skills := sl.LoadFromDir(dir)
@@ -82,7 +82,7 @@ triggers:
     - yaml
 `
 	path := filepath.Join(dir, "structured.yaml")
-	os.WriteFile(path, []byte(content), 0644)
+	_ = os.WriteFile(path, []byte(content), 0644)
 
 	sl := NewSkillLoader()
 	skills := sl.LoadFromDir(dir)
@@ -101,12 +101,12 @@ func TestSkillLoader_Subdirectories(t *testing.T) {
 	dir := t.TempDir()
 
 	// Root level skill.
-	os.WriteFile(filepath.Join(dir, "root.md"), []byte("---\nname: root\n---\nRoot body"), 0644)
+	_ = os.WriteFile(filepath.Join(dir, "root.md"), []byte("---\nname: root\n---\nRoot body"), 0644)
 
 	// Subdirectory skill.
 	subdir := filepath.Join(dir, "custom")
-	os.MkdirAll(subdir, 0755)
-	os.WriteFile(filepath.Join(subdir, "sub.md"), []byte("---\nname: sub\n---\nSub body"), 0644)
+	_ = os.MkdirAll(subdir, 0755)
+	_ = os.WriteFile(filepath.Join(subdir, "sub.md"), []byte("---\nname: sub\n---\nSub body"), 0644)
 
 	sl := NewSkillLoader()
 	skills := sl.LoadFromDir(dir)
@@ -117,8 +117,8 @@ func TestSkillLoader_Subdirectories(t *testing.T) {
 
 func TestSkillLoader_UnsupportedExtension(t *testing.T) {
 	dir := t.TempDir()
-	os.WriteFile(filepath.Join(dir, "readme.txt"), []byte("not a skill"), 0644)
-	os.WriteFile(filepath.Join(dir, "data.json"), []byte("{}"), 0644)
+	_ = os.WriteFile(filepath.Join(dir, "readme.txt"), []byte("not a skill"), 0644)
+	_ = os.WriteFile(filepath.Join(dir, "data.json"), []byte("{}"), 0644)
 
 	sl := NewSkillLoader()
 	skills := sl.LoadFromDir(dir)
@@ -129,7 +129,7 @@ func TestSkillLoader_UnsupportedExtension(t *testing.T) {
 
 func TestSkillLoader_MissingFrontmatter(t *testing.T) {
 	dir := t.TempDir()
-	os.WriteFile(filepath.Join(dir, "bad.md"), []byte("No frontmatter here"), 0644)
+	_ = os.WriteFile(filepath.Join(dir, "bad.md"), []byte("No frontmatter here"), 0644)
 
 	sl := NewSkillLoader()
 	skills := sl.LoadFromDir(dir)
@@ -141,7 +141,7 @@ func TestSkillLoader_MissingFrontmatter(t *testing.T) {
 func TestSkillLoader_DefaultPriority(t *testing.T) {
 	dir := t.TempDir()
 	content := "---\nname: no-priority\n---\nBody"
-	os.WriteFile(filepath.Join(dir, "skill.md"), []byte(content), 0644)
+	_ = os.WriteFile(filepath.Join(dir, "skill.md"), []byte(content), 0644)
 
 	sl := NewSkillLoader()
 	skills := sl.LoadFromDir(dir)

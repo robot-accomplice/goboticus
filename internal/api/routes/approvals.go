@@ -63,7 +63,7 @@ func ApproveRequest(svc ApprovalService) http.HandlerFunc {
 		var body struct {
 			Operator string `json:"operator"`
 		}
-		json.NewDecoder(r.Body).Decode(&body)
+		_ = json.NewDecoder(r.Body).Decode(&body)
 		if body.Operator == "" {
 			body.Operator = "api"
 		}
@@ -85,7 +85,7 @@ func DenyRequest(svc ApprovalService) http.HandlerFunc {
 			Operator string `json:"operator"`
 			Reason   string `json:"reason"`
 		}
-		json.NewDecoder(r.Body).Decode(&body)
+		_ = json.NewDecoder(r.Body).Decode(&body)
 		if body.Operator == "" {
 			body.Operator = "api"
 		}

@@ -49,7 +49,7 @@ func (t *IntrospectionTool) Execute(ctx context.Context, params string, _ *Conte
 	var p struct {
 		Aspect string `json:"aspect"`
 	}
-	json.Unmarshal([]byte(params), &p)
+	_ = json.Unmarshal([]byte(params), &p)
 	if p.Aspect == "" {
 		p.Aspect = "all"
 	}

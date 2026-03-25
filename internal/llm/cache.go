@@ -106,7 +106,7 @@ func (c *Cache) Get(ctx context.Context, req *Request) *Response {
 	c.put(hash, &resp, created)
 
 	// Update hit count.
-	c.store.ExecContext(ctx,
+	_, _ = c.store.ExecContext(ctx,
 		`UPDATE semantic_cache SET hit_count = hit_count + 1 WHERE prompt_hash = ?`, hash)
 
 	log.Debug().Str("hash", hash[:12]).Msg("cache hit (L2)")
@@ -133,7 +133,7 @@ func (c *Cache) Put(ctx context.Context, req *Request, resp *Response) {
 	expires := now.Add(c.ttl).Format(time.RFC3339)
 	tokensSaved := resp.Usage.InputTokens + resp.Usage.OutputTokens
 
-	c.store.ExecContext(ctx,
+	_, _ = c.store.ExecContext(ctx,
 		`INSERT OR REPLACE INTO semantic_cache
 		 (id, prompt_hash, response, model, tokens_saved, hit_count, created_at, expires_at)
 		 VALUES (?, ?, ?, ?, ?, 0, datetime('now'), ?)`,

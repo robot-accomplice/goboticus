@@ -164,7 +164,7 @@ func (e *EmailAdapter) pollIMAP(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("imap connect: %w", err)
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	// Login.
 	if err := imapCommand(conn, fmt.Sprintf("LOGIN %q %q", e.cfg.Username, e.cfg.Password)); err != nil {
@@ -205,11 +205,11 @@ func (e *EmailAdapter) pollIMAP(ctx context.Context) error {
 		})
 
 		// Mark as seen.
-		imapCommand(conn, fmt.Sprintf("STORE %d +FLAGS (\\Seen)", uid))
+		_ = imapCommand(conn, fmt.Sprintf("STORE %d +FLAGS (\\Seen)", uid))
 	}
 
 	// Logout.
-	imapCommand(conn, "LOGOUT")
+	_ = imapCommand(conn, "LOGOUT")
 	return nil
 }
 
@@ -257,8 +257,8 @@ func imapCommand(c *imapConn, cmd string) error {
 	c.tag++
 	tag := fmt.Sprintf("A%03d", c.tag)
 	line := fmt.Sprintf("%s %s\r\n", tag, cmd)
-	c.writer.WriteString(line)
-	c.writer.Flush()
+	_, _ = c.writer.WriteString(line)
+	_ = c.writer.Flush()
 
 	// Read until tagged response.
 	for c.scanner.Scan() {
@@ -276,8 +276,8 @@ func imapCommand(c *imapConn, cmd string) error {
 func imapSearchUnseen(c *imapConn) ([]int, error) {
 	c.tag++
 	tag := fmt.Sprintf("A%03d", c.tag)
-	c.writer.WriteString(fmt.Sprintf("%s SEARCH UNSEEN\r\n", tag))
-	c.writer.Flush()
+	_, _ = c.writer.WriteString(fmt.Sprintf("%s SEARCH UNSEEN\r\n", tag))
+	_ = c.writer.Flush()
 
 	var uids []int
 	for c.scanner.Scan() {
@@ -304,8 +304,8 @@ func imapSearchUnseen(c *imapConn) ([]int, error) {
 func imapFetch(c *imapConn, uid int) (from, subject, body string, err error) {
 	c.tag++
 	tag := fmt.Sprintf("A%03d", c.tag)
-	c.writer.WriteString(fmt.Sprintf("%s FETCH %d (BODY[HEADER.FIELDS (FROM SUBJECT)] BODY[TEXT])\r\n", tag, uid))
-	c.writer.Flush()
+	_, _ = c.writer.WriteString(fmt.Sprintf("%s FETCH %d (BODY[HEADER.FIELDS (FROM SUBJECT)] BODY[TEXT])\r\n", tag, uid))
+	_ = c.writer.Flush()
 
 	var inHeader, inBody bool
 	var headerBuf, bodyBuf strings.Builder
