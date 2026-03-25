@@ -1,3 +1,16 @@
+```
+       o╔═══╗o
+        ║◉_◉║
+        ║ ▯▯║
+        ╚═╤═╝
+      ╔═══╪═══╗       G O B O T I C U S
+  ╔═══╣ ▓▓║▓▓ ╠═══╗   Autonomous Agent Runtime
+  █   ║ ▓▓║▓▓ ║   █
+      ╚══╤═╤══╝
+         ║ ║
+        ═╩═╩═
+```
+
 # Goboticus
 
 ![Go 1.26](https://img.shields.io/badge/Go-1.26-00ADD8?style=flat-square&logo=go&logoColor=white)
