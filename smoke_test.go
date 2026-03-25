@@ -47,11 +47,11 @@ func TestLiveSmokeTest(t *testing.T) {
 
 	llmSvc, err := llm.NewService(llm.ServiceConfig{
 		Providers: []llm.Provider{{
-			Name:      "mock",
-			URL:       mockLLM.URL,
-			Format:    llm.FormatOpenAI,
-			IsLocal:   true,
-			ChatPath:  "/v1/chat/completions",
+			Name:       "mock",
+			URL:        mockLLM.URL,
+			Format:     llm.FormatOpenAI,
+			IsLocal:    true,
+			ChatPath:   "/v1/chat/completions",
 			AuthHeader: "Bearer",
 		}},
 		Primary: "mock/test-model",
@@ -563,10 +563,10 @@ func truncate(v any, n int) string {
 // echoTool is a minimal Tool implementation for MCP registry testing.
 type echoTool struct{}
 
-func (e *echoTool) Name() string                      { return "echo" }
-func (e *echoTool) Description() string                { return "test echo tool" }
-func (e *echoTool) Risk() agenttools.RiskLevel         { return agenttools.RiskSafe }
-func (e *echoTool) ParameterSchema() json.RawMessage   { return json.RawMessage(`{"type":"object"}`) }
+func (e *echoTool) Name() string                     { return "echo" }
+func (e *echoTool) Description() string              { return "test echo tool" }
+func (e *echoTool) Risk() agenttools.RiskLevel       { return agenttools.RiskSafe }
+func (e *echoTool) ParameterSchema() json.RawMessage { return json.RawMessage(`{"type":"object"}`) }
 func (e *echoTool) Execute(_ context.Context, params string, _ *agenttools.Context) (*agenttools.Result, error) {
 	return &agenttools.Result{Output: params}, nil
 }
