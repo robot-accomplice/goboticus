@@ -1,7 +1,7 @@
 # ============================================================================
 # Goboticus CI Pipeline
 # ============================================================================
-# Multi-stage workflow: lint -> test/fuzz/integration (parallel) -> build/security
+# Multi-stage workflow: lint -> test/fuzz/integration/parity (parallel) -> build/security
 # Pure-Go project with modernc.org/sqlite (no CGO required).
 # ============================================================================
 
@@ -136,13 +136,57 @@ jobs:
         run: go test -fuzz=FuzzMatchesCron -fuzztime=10s ./internal/schedule/
 
   # --------------------------------------------------------------------------
+  # Stage 2d: Parity Audit
+  # Checks out roboticus and compares feature coverage.
+  # Catches parity regressions in CI; the standalone parity-audit.yml
+  # workflow handles issue creation on roboticus releases.
+  # --------------------------------------------------------------------------
+  parity-audit:
+    name: Parity Audit
+    needs: [lint]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout goboticus
+        uses: actions/checkout@v4
+
+      - name: Checkout roboticus
+        uses: actions/checkout@v4
+        with:
+          repository: robot-accomplice/roboticus
+          path: _roboticus
+          ref: main
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build goboticus
+        run: go build ./...
+
+      - name: Run parity audit
+        run: |
+          go run ./cmd/parity-audit \
+            --roboticus-dir=_roboticus \
+            --goboticus-dir=. \
+            --output=parity-report.md
+
+      - name: Upload parity report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: parity-report
+          path: parity-report.md
+          retention-days: 14
+
+  # --------------------------------------------------------------------------
   # Stage 3a: Build
   # Produces a statically-linked linux/amd64 binary.
   # CGO_ENABLED=0 is safe — modernc.org/sqlite is pure Go.
   # --------------------------------------------------------------------------
   build:
     name: Build
-    needs: [test, test-integration, fuzz]
+    needs: [test, test-integration, fuzz, parity-audit]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -173,7 +217,7 @@ jobs:
   # --------------------------------------------------------------------------
   security:
     name: Security (govulncheck)
-    needs: [test, test-integration, fuzz]
+    needs: [test, test-integration, fuzz, parity-audit]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
